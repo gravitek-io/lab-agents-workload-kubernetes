@@ -64,6 +64,8 @@ run = "scripts/isolation.sh"
 [tasks.all]
 description = "Run the whole lab: up, model, density, resume, isolation"
 run = [
+  # Fail fast on a missing .env, before the few minutes `up` takes.
+  "bash -c 'source scripts/lib/common.sh && require_env OPENROUTER_API_KEY OPENROUTER_MODEL'",
   "scripts/up.sh",
   "scripts/model.sh",
   "scripts/density.sh",

@@ -40,8 +40,8 @@ log "smoke test: one question to lab-agent-1"
 session="$(kagent agent session create --agent lab-agent-1 -o json | jq -r '.session.id')"
 if ! reply="$(kagent agent invoke --session "$session" --task "Réponds juste : prêt." 2>&1)"; then
   printf '%s\n' "$reply" >&2
-  if grep -q "400" <<<"$reply"; then
-    die "the provider rejected the request: OPENROUTER_MODEL must support tool calling (see .env.example)"
+  if is_provider_rejection <<<"$reply"; then
+    die "the provider rejected the request: check that OPENROUTER_MODEL (${OPENROUTER_MODEL}) exists on OpenRouter and supports tool calling (see .env.example)"
   fi
   die "the agent did not answer"
 fi

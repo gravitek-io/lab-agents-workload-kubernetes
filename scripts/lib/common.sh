@@ -36,3 +36,20 @@ require_env() {
       || die "missing environment variable: ${var} (see .env.example)"
   done
 }
+
+# Shape of an OpenRouter API key: "sk-or-v1-" followed by 64 hex characters.
+# Matching the full shape keeps text that merely mentions the prefix (docs,
+# a command quoted by a model) from raising a false alarm.
+readonly OPENROUTER_KEY_REGEX='sk-or-v1-[0-9a-f]{64}'
+
+# contains_openrouter_key : success if the text on stdin holds an OpenRouter key.
+contains_openrouter_key() {
+  grep -qE -- "$OPENROUTER_KEY_REGEX"
+}
+
+# is_provider_rejection : success if the `kagent agent invoke` output on stdin
+# reports an HTTP 4xx from the model provider. kagent hides the provider's
+# detail and only reports "OpenAI API error: <status>".
+is_provider_rejection() {
+  grep -qE 'API error: 4[0-9]{2}'
+}

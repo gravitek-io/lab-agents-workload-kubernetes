@@ -2,8 +2,9 @@
 # Density demo: open 1, then 10, then 30 conversations (sessions) spread over
 # the three lab agents, and measure after each step. Every session is its own
 # Substrate actor, yet the number of worker pods stays that of the WorkerPool.
-# Re-running continues from the sessions that already exist and rewrites
-# results/density.csv, so the file always holds one run.
+# Each run starts from zero: it deletes the lab agents' existing sessions
+# (including those opened by the model and isolation steps), so the 1/10/30
+# curve and results/density.csv are the same on every run.
 set -euo pipefail
 
 # shellcheck source=lib/common.sh
@@ -14,9 +15,14 @@ readonly AGENTS=(lab-agent-1 lab-agent-2 lab-agent-3)
 
 require_cmd kubectl kagent jq
 
-count_sessions() {
+# lab_session_ids : ids of the lab agents' sessions, one per line.
+lab_session_ids() {
   kagent agent session list --page-size 100 -o json \
-    | jq '[.sessions[] | select(.agent.ref.name | startswith("lab-agent-"))] | length'
+    | jq -r '.sessions[] | select(.agent.ref.name | startswith("lab-agent-")) | .id'
+}
+
+count_sessions() {
+  lab_session_ids | grep -c . || true
 }
 
 # Wait until no actor is running, resuming or suspending: a fresh session is
@@ -34,6 +40,11 @@ wait_all_suspended() {
 
 kagent agent list >/dev/null 2>&1 || die "kagent is not reachable: run 'mise run up' and 'mise run model' first"
 rm -f "${LAB_ROOT}/results/density.csv"
+
+log "deleting the existing lab sessions"
+lab_session_ids | while IFS= read -r id; do
+  kagent agent session delete "$id" >/dev/null
+done
 
 for target in "${STEPS[@]}"; do
   current="$(count_sessions)"

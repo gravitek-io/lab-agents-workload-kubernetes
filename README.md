@@ -230,8 +230,9 @@ Supprime le cluster et tout ce qu'il contient.
 - **Des sandboxes restent en `RUNTIME_STATE_CREATING`** : le worker est plein (4 Go de limite, 1 Go par
   sandbox ou par tour en cours). Listez et supprimez les sandboxes oubliées avec `kagent sandbox list` puis
   `kagent sandbox delete <id>`.
-- **Chaque échange échoue avec une erreur 400 du fournisseur** : le modèle choisi dans `OPENROUTER_MODEL`
-  n'accepte pas les appels d'outils. Revenez à `openrouter/auto` ou choisissez un modèle qui les accepte.
+- **Chaque échange échoue avec `OpenAI API error: 4xx`** : OpenRouter refuse la requête. Le plus souvent, le
+  modèle choisi dans `OPENROUTER_MODEL` n'existe pas ou n'accepte pas les appels d'outils (kagent ne relaie pas
+  le détail de l'erreur). Revenez à `openrouter/auto` ou choisissez un modèle qui les accepte.
 - **`kagent API not reachable on localhost:18083`** : le port local est déjà pris. Choisissez-en un autre avec
   la variable `LAB_API_PORT` (par exemple `LAB_API_PORT=28083 mise run density`).
 - **Les scripts échouent sur une syntaxe bash** : ils sont écrits pour le bash 3.2 livré avec macOS ;

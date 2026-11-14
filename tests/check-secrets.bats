@@ -31,7 +31,8 @@ teardown() {
   [[ "$output" == *"results/density.csv"* ]]
 }
 
-@test "ignores an untracked .env outside results/" {
+@test "ignores a git-ignored .env outside results/" {
+  echo ".env" > "$REPO/.gitignore"
   echo "OPENROUTER_API_KEY=${FAKE_KEY}" > "$REPO/.env"
   run "$SCRIPT" "$REPO"
   [ "$status" -eq 0 ]
@@ -49,4 +50,11 @@ teardown() {
   git -C "$REPO" add README.md
   run "$SCRIPT" "$REPO"
   [ "$status" -eq 0 ]
+}
+
+@test "fails on an untracked, non-ignored file containing a key" {
+  echo "${FAKE_KEY}" > "$REPO/notes-draft.md"
+  run "$SCRIPT" "$REPO"
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"notes-draft.md"* ]]
 }
