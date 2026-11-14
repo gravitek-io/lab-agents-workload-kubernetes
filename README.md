@@ -1,14 +1,15 @@
 # Lab : les agents IA, nouveau workload de Kubernetes
 
-Ce lab accompagne un article du blog [Gravitek](https://gravitek.io/blog). Il fait tourner
+Ce lab accompagne l'article
+[« Un agent IA n'est pas un microservice : l'héberger comme un workload Kubernetes »](https://www.gravitek.io/blog/agents-ia-workload-kubernetes)
+du blog [Gravitek](https://www.gravitek.io/blog). Il fait tourner
 [kagent](https://kagent.dev) 1.0 sur Agent Substrate dans un cluster [kind](https://kind.sigs.k8s.io) local,
 pour observer de ses propres yeux ce qui change quand on héberge des agents IA : des dizaines de conversations
 sans pods supplémentaires, des agents qui dorment et se réveillent depuis un snapshot, une isolation gVisor
 et un egress fermé par défaut.
 
 L'article explique pourquoi un agent IA n'est pas un microservice et pourquoi le modèle « un pod par agent »
-ne tient pas ; ce dépôt montre comment Agent Substrate y répond, étape par étape. Le lien vers l'article sera
-ajouté à sa publication.
+ne tient pas ; ce dépôt montre comment Agent Substrate y répond, étape par étape.
 
 ## En un coup d'œil
 
