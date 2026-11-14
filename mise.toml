@@ -25,3 +25,15 @@ run = [
   "bats tests/",
   "scripts/check-secrets.sh",
 ]
+
+[tasks.up]
+description = "Create the kind cluster and install kagent 1.0 with Agent Substrate"
+run = "scripts/up.sh"
+
+[tasks.down]
+description = "Delete the lab cluster"
+run = "scripts/down.sh"
+
+[tasks.gvisor-check]
+description = "Prove that sandboxes run under gVisor (no model involved)"
+run = "scripts/gvisor-check.sh"

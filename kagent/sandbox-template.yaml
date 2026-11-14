@@ -1,0 +1,16 @@
+# Standalone Substrate sandbox used as a deterministic probe: it runs on the
+# same gVisor WorkerPool as the agents, without involving the model.
+apiVersion: api.kagent.dev/v1alpha3
+kind: SandboxTemplate
+metadata:
+  name: lab-probe
+  namespace: kagent
+spec:
+  workload:
+    # busybox 1.37 (multi-arch index), pinned by digest.
+    image: docker.io/library/busybox@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
+  substrate:
+    workerPoolRef:
+      name: kagent-default
+    snapshotPolicy:
+      location: s3://ate-snapshots/kagent/

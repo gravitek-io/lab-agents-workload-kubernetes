@@ -1,0 +1,25 @@
+# Helm values for the kagent chart, passed through `kagent install`.
+config:
+  server:
+    # Lets grpcurl discover the controller API (the measurement script reads
+    # SystemService/GetSubstrateSummary through it).
+    grpcReflection: true
+  sandboxes:
+    # Guest entrypoint injected into standalone sandboxes (the lab-probe
+    # template). The chart ships no default and the value must be pinned by
+    # digest. It must be the guest of the 1.0.0 release (tag 1.0.0): the digest
+    # shown in the "latest" docs is a newer guest, and with the v1.0.0
+    # controller `kagent sandbox exec` never completes.
+    guestImage: ghcr.io/kagent-dev/kagent/sandbox-guest@sha256:354825706868fc4d39300fe7795f4fa04d1eb53c3c93fb5b65b5da76f8222db7
+substrateWorkerPool:
+  template:
+    # Without limits a Worker advertises the whole node as its capacity, which
+    # makes memory figures meaningless. Each running turn gets 1 GiB by default
+    # (config.runtimeDefaults.memory), so 4 GiB allows a few turns at once.
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: "4"
+        memory: 4Gi
