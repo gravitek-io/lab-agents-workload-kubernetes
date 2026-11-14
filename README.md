@@ -128,6 +128,34 @@ kubectl ate get actors --atespace kagent
 
 Un acteur endormi affiche `ACTOR_STATE_SUSPENDED` et `<none>` comme pod worker.
 
+## Suspend/resume : dormir sans coûter
+
+```bash
+mise run resume
+```
+
+Le script envoie un message à cinq conversations endormies. Pour chacune, Substrate attribue un worker à
+l'acteur, le restaure depuis son snapshot, l'agent répond, puis l'acteur se rendort dès la fin du tour :
+
+```text
+==> session 01a1dc1d-…: ACTOR_STATE_SUSPENDED, no worker pod
+    reply: réveillé.
+==> restored in 138 ms, back to ACTOR_STATE_SUSPENDED
+…
+==> snapshot of the last session (only the /data volume, no process memory):
+SNAPSHOT_FIDELITY_VOLUMES  s3://ate-snapshots/kagent/atespaces/kagent/actors/…/snapshots/…
+```
+
+Le temps mesuré est celui de la restauration, lu dans l'enregistrement « Restore timing breakdown » du
+worker ; il n'inclut pas l'appel au modèle. Sur un MacBook avec Docker Desktop, il varie d'environ 90 à 140 ms.
+Les mesures sont écrites dans `results/resume.csv`.
+
+**Ce que contient le snapshot.** Dans kagent 1.0, le snapshot ne garde que le volume `/data` de l'agent
+(`SNAPSHOT_FIDELITY_VOLUMES`), pas la mémoire de son processus : à chaque réveil, le conteneur redémarre et
+relit son état sur disque. Il n'y a pas non plus de délai d'inactivité : kagent endort l'acteur à **chaque
+fin de tour**, si bien que chaque message paie une restauration. Les snapshots sont rangés dans le stockage
+objet installé avec Substrate (rustfs, un volume de 1 Go non durable, prévu pour l'évaluation).
+
 ## Arrêter
 
 ```bash

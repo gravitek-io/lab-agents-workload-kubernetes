@@ -42,3 +42,18 @@ setup() {
 @test "DENSITY_CSV_HEADER matches the row layout" {
   [ "$DENSITY_CSV_HEADER" = "timestamp,sessions,actors_total,actors_suspended,actors_running,worker_pods,worker_memory_mib" ]
 }
+
+@test "restore_duration_ms reads the restore total of one actor" {
+  run restore_duration_ms session-01a1dc1f-a74d-71c7-8ad9-466c5a2026cc < "$FIXTURES/worker-restore.log"
+  [ "$status" -eq 0 ]
+  [ "$output" = "132" ]
+}
+
+@test "restore_duration_ms fails for an actor with no restore" {
+  run restore_duration_ms session-unknown < "$FIXTURES/worker-restore.log"
+  [ "$status" -eq 1 ]
+}
+
+@test "RESUME_CSV_HEADER matches the row layout" {
+  [ "$RESUME_CSV_HEADER" = "timestamp,session,restore_ms" ]
+}

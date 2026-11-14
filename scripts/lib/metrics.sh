@@ -46,3 +46,21 @@ density_row() {
     | map(tostring) | join(",")
   ' "$summary"
 }
+
+# shellcheck disable=SC2034 # used by resume.sh, which sources this file
+readonly RESUME_CSV_HEADER="timestamp,session,restore_ms"
+
+# restore_duration_ms ACTOR_NAME : read Substrate worker logs on stdin and
+# print, in whole milliseconds, the total restore time of ACTOR_NAME (from the
+# worker's "Restore timing breakdown" record; the last one if there are
+# several). Non-JSON lines (gVisor's own logs) are skipped. Fails if the actor
+# has no restore record.
+restore_duration_ms() {
+  local ms
+  ms="$(jq -R -r --arg actor "$1" '
+    fromjson? | select(.msg == "Restore timing breakdown" and .["ate.actor.name"] == $actor)
+    | .["ateworker.actor.restore.duration.total"] * 1000 | round
+  ' | tail -n 1)"
+  [[ -n "$ms" ]] || return 1
+  echo "$ms"
+}

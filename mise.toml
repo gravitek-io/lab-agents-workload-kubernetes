@@ -52,3 +52,7 @@ run = "scripts/measure.sh"
 [tasks.density]
 description = "Open 1, 10 then 30 sessions and measure actors versus worker pods"
 run = "scripts/density.sh"
+
+[tasks.resume]
+description = "Wake sleeping sessions and record their restore times"
+run = "scripts/resume.sh"
