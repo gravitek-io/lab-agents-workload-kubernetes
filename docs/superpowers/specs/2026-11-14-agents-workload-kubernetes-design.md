@@ -50,6 +50,14 @@ lecteur puisse le voir de ses yeux et le rejouer.
 - **Modèle** : OpenRouter, déclaré comme fournisseur compatible OpenAI (`ModelConfig`, `provider: OpenAI`,
   `openAI.baseUrl: https://openrouter.ai/api/v1`). Le modèle choisi **doit accepter les appels d'outils**
   (kagent envoie la liste de ses outils intégrés à chaque tour).
+- **Modèle par défaut : le routeur automatique d'OpenRouter** (`openrouter/auto`, demande de Thomas, 2026-11-14),
+  pour observer quels modèles il choisit selon les prompts. Le routeur ne retient que les modèles capables de
+  traiter la requête (appels d'outils compris) et facture le tarif du modèle choisi, sans surcoût.
+  Limite : le `ModelConfig` de kagent n'accepte ni en-têtes ni paramètres propres à OpenRouter, donc ni
+  `X-OpenRouter-Metadata` (raison du choix) ni `cost_tier` par requête. On règle le palier de coût et la liste des
+  modèles autorisés dans les préférences du compte OpenRouter (page Routing, section Auto Router), et on lit le
+  modèle choisi pour chaque requête dans la page Activity d'OpenRouter. Ne pas fixer `reasoningEffort` : le routeur
+  le choisit. Ce sujet reste dans le README du lab ; il n'entre pas dans l'article 1.
 - **Secrets** : la clé OpenRouter vit dans un `.env` ignoré par git ; le Secret Kubernetes est créé depuis la
   variable d'environnement ; aucun script ne l'affiche. `.env.example` documente la variable sans valeur.
 - **Versions épinglées** partout : kind, image de nœud, kagent CLI et charts (`v1.0.0` / `1.0.0`), Substrate.

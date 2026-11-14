@@ -53,7 +53,7 @@
 - Produces mise tasks: `check` (shellcheck on `scripts/**/*.sh` + `bats tests/` + `scripts/check-secrets.sh`), `tools` (fallback downloader for kagent CLI and `kubectl-ate` if mise backends fail)
 
 - [ ] **Step 1:** Write `mise.toml` with `[tools]` pinned exactly (kind ≥ 0.32 latest patch, kubectl 1.37.x, helm 3.x, jq, grpcurl, shellcheck, bats), plus kagent CLI and `kubectl-ate` through mise's GitHub backend if their release assets resolve (`github:kagent-dev/kagent`, `github:kagent-dev/substrate`); `[env] _.file = ".env"`. Run `mise install`. Expected: all tools install; `kind version` ≥ v0.32.0. If kagent/`kubectl-ate` do not resolve, remove them from `[tools]` and implement the `tools` task (downloads `v1.0.0` into `./bin`, added to `PATH` via `[env] _.path`).
-- [ ] **Step 2:** `.gitignore` covers `.env`, `bin/`, `*.kubeconfig`; `.env.example` has `OPENROUTER_API_KEY=` and `OPENROUTER_MODEL=` with a French comment each (where to get the key, that the model must support tool calling).
+- [ ] **Step 2:** `.gitignore` covers `.env`, `bin/`, `*.kubeconfig`; `.env.example` has `OPENROUTER_API_KEY=` and `OPENROUTER_MODEL=openrouter/auto` with a French comment each (where to get the key; `openrouter/auto` is the auto router, a fixed model must support tool calling).
 - [ ] **Step 3: Write the failing tests** in `tests/common.bats`:
   - `require_env fails naming the variable`: with `FOO` unset, `run require_env FOO` → status 1, output contains `missing environment variable: FOO`.
   - `require_env never prints the value`: with `FOO=sk-or-v1-secret` and `BAR` unset, `run require_env FOO BAR` → output contains `BAR`, does not contain `sk-or-v1-secret`.
@@ -104,7 +104,8 @@
 - [ ] **Step 2: Verify** `mise run model`, then `kagent agent session create --agent lab-agent-1 -o json` and `kagent agent invoke --session <id> --task "Réponds juste : prêt."`. Expected: a reply. If the provider returns 400, the script prints: model must support tool calling (see `.env.example`).
 - [ ] **Step 3: Verify** missing key: `OPENROUTER_API_KEY= mise run model` → fails naming the variable, cluster untouched.
 - [ ] **Step 4:** Run `mise run check`. Expected: PASS (no key anywhere).
-- [ ] **Step 5:** README section « Brancher le modèle ».
+- [ ] **Step 4b: Which model answered.** Check whether `kagent agent invoke` (JSON output or session events) exposes the response `model` field. If it does, `model.sh`'s smoke test and later scripts append `timestamp,session,task,model` to `results/models.csv`. If it does not, note it in README and rely on OpenRouter's Activity page. Do not set `reasoningEffort` in the `ModelConfig`.
+- [ ] **Step 5:** README section « Brancher le modèle »: auto router by default, how to set the cost tier and allowed models in the OpenRouter account (Routing page, Auto Router section, `low` recommended for the lab), where to see the chosen model (Activity page), and how to pin a fixed model instead.
 - [ ] **Step 6: Commit** `feat: add OpenRouter model config and lab agents`
 
 ### Task 4: Measurement and density
