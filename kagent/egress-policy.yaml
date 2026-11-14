@@ -1,0 +1,11 @@
+# Opens exactly one destination, used by the isolation demo to show that
+# egress is closed by default and opened per origin. Attached to the probe
+# sandbox template only for the duration of `mise run isolation`.
+apiVersion: api.kagent.dev/v1alpha3
+kind: EgressPolicy
+metadata:
+  name: lab-allow-example
+  namespace: kagent
+spec:
+  destinations:
+    - origin: https://example.com

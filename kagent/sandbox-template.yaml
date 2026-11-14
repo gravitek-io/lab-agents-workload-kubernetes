@@ -7,8 +7,9 @@ metadata:
   namespace: kagent
 spec:
   workload:
-    # busybox 1.37 (multi-arch index), pinned by digest.
-    image: docker.io/library/busybox@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
+    # curl 8.23.0 on Alpine (multi-arch index), pinned by digest: a real TLS
+    # client for the egress checks, plus the busybox tools (uname, dmesg).
+    image: docker.io/curlimages/curl@sha256:3fb7e13e5d179a845c97d78204f3f1064d1907037f26a3ebf91710571151fd93
   substrate:
     workerPoolRef:
       name: kagent-default

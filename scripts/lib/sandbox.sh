@@ -21,8 +21,11 @@ exec_exit_code() {
 # probe_sandbox_create NAME : create a probe sandbox, print its id. NAME makes
 # the idempotency key unique per caller and run.
 probe_sandbox_create() {
-  kagent sandbox create lab-probe --request-id "lab-$1-$(date +%s)" --ttl 15m -o json \
-    | jq -r '.id'
+  local id
+  id="$(kagent sandbox create lab-probe --request-id "lab-$1-$(date +%s)" --ttl 15m -o json \
+    | jq -r '.id // empty')"
+  [[ -n "$id" ]] || { echo "ERROR: could not create a probe sandbox" >&2; return 1; }
+  echo "$id"
 }
 
 # probe_sandbox_run ID COMMAND... : run COMMAND in the sandbox, print its stdout.

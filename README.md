@@ -156,6 +156,44 @@ relit son état sur disque. Il n'y a pas non plus de délai d'inactivité : kage
 fin de tour**, si bien que chaque message paie une restauration. Les snapshots sont rangés dans le stockage
 objet installé avec Substrate (rustfs, un volume de 1 Go non durable, prévu pour l'évaluation).
 
+## Isolation : le noyau n'est pas la frontière
+
+```bash
+mise run isolation
+```
+
+Les trois premières vérifications passent par la sandbox sonde, sans modèle : elles donnent toujours le même
+résultat. La dernière montre un vrai agent au travail.
+
+```text
+==> 1/4 gVisor
+sandbox kernel:  4.19.0-gvisor
+gVisor: OK
+==> 2/4 egress closed by default
+https://example.com -> curl: (6) Could not resolve host: example.com
+==> 3/4 one EgressPolicy opens one origin
+https://example.com -> 200
+https://www.google.com -> curl: (6) Could not resolve host: www.google.com
+==> egress gateway log for the allowed request:
+endpoint=example.com:443 http.host=example.com http.status=200
+==> 4/4 an agent at work (illustration, depends on the model using its tool)
+4.19.0-gvisor
+clé vue par l agent : kagent-credential-injected
+agent illustration: OK
+```
+
+1. **gVisor** : les appels système de la sandbox sont traités par le noyau applicatif de gVisor, pas par celui
+   de l'hôte.
+2. **Egress fermé par défaut** : une destination non autorisée ne se résout même pas. Un agent n'atteint que ce
+   que son modèle d'agent déclare (le fournisseur de modèle, ses serveurs MCP…).
+3. **Une `EgressPolicy` ouvre une origine, et une seule** (`kagent/egress-policy.yaml`). La requête autorisée
+   passe par la passerelle d'egress de Substrate, qui la journalise ; le reste d'Internet reste fermé. La
+   politique est retirée à la fin du script.
+4. **L'agent ne détient pas la clé** : il exécute lui-même `uname -r` avec son outil `bash`, puis affiche sa
+   variable `OPENAI_API_KEY`, qui ne contient qu'un leurre (`kagent-credential-injected`). La passerelle
+   remplace cet en-tête par la vraie clé OpenRouter à la sortie. Cette étape dépend de la bonne volonté du
+   modèle à utiliser son outil : si elle échoue, le script le signale sans s'arrêter.
+
 ## Arrêter
 
 ```bash

@@ -56,3 +56,7 @@ run = "scripts/density.sh"
 [tasks.resume]
 description = "Wake sleeping sessions and record their restore times"
 run = "scripts/resume.sh"
+
+[tasks.isolation]
+description = "Show gVisor isolation, closed egress and credential injection"
+run = "scripts/isolation.sh"
