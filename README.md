@@ -97,6 +97,37 @@ palier de coût (`low` suffit pour ce lab) et la liste des modèles autorisés d
 *Auto Router*. Pour fixer un modèle, remplacez la valeur de `OPENROUTER_MODEL` par son identifiant OpenRouter :
 il doit accepter les appels d'outils.
 
+## Densité : des conversations, pas des pods
+
+```bash
+mise run density
+```
+
+Le script ouvre 1, puis 10, puis 30 conversations (des *sessions*), réparties sur les trois agents, et prend une
+mesure après chaque palier. Dans kagent 1.0, chaque session devient un **acteur** Substrate : son état (fichiers,
+historique) existe, mais tant qu'il ne travaille pas, il est endormi et n'occupe aucun worker.
+
+```text
+timestamp,sessions,actors_total,actors_suspended,actors_running,worker_pods,worker_memory_mib
+2026-11-14T22:13:43Z,2,2,2,0,1,17
+2026-11-14T22:13:46Z,10,10,10,0,1,17
+2026-11-14T22:13:51Z,30,30,30,0,1,17
+```
+
+Trente conversations, trente acteurs endormis, et toujours **un seul pod worker**, qui n'occupe que quelques
+mégaoctets. Avec un pod par agent, on aurait trente pods qui attendent. Le nombre de pods ne dépend que du nombre
+de répliques du `WorkerPool`, à dimensionner pour les tours qui tournent en même temps, pas pour le nombre
+d'agents ou de conversations.
+
+Les mesures sont écrites dans `results/density.csv` (le fichier est réécrit à chaque lancement). Pour voir
+les acteurs eux-mêmes :
+
+```bash
+kubectl ate get actors --atespace kagent
+```
+
+Un acteur endormi affiche `ACTOR_STATE_SUSPENDED` et `<none>` comme pod worker.
+
 ## Arrêter
 
 ```bash
