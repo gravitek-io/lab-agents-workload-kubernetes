@@ -1,0 +1,4 @@
+timestamp,sessions,actors_total,actors_suspended,actors_running,worker_pods,worker_memory_mib
+2026-11-14T22:25:48Z,1,1,1,0,1,14
+2026-11-14T22:25:51Z,10,10,10,0,1,14
+2026-11-14T22:25:56Z,30,30,30,0,1,18

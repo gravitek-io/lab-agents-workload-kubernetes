@@ -60,3 +60,13 @@ run = "scripts/resume.sh"
 [tasks.isolation]
 description = "Show gVisor isolation, closed egress and credential injection"
 run = "scripts/isolation.sh"
+
+[tasks.all]
+description = "Run the whole lab: up, model, density, resume, isolation"
+run = [
+  "scripts/up.sh",
+  "scripts/model.sh",
+  "scripts/density.sh",
+  "scripts/resume.sh",
+  "scripts/isolation.sh",
+]

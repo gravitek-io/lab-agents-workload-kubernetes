@@ -6,13 +6,29 @@ pour observer de ses propres yeux ce qui change quand on héberge des agents IA 
 sans pods supplémentaires, des agents qui dorment et se réveillent depuis un snapshot, une isolation gVisor
 et un egress fermé par défaut.
 
-> En construction : les étapes suivantes (modèle, densité, suspend/resume, isolation) arrivent au fil des
-> versions du lab.
+L'article explique pourquoi un agent IA n'est pas un microservice et pourquoi le modèle « un pod par agent »
+ne tient pas ; ce dépôt montre comment Agent Substrate y répond, étape par étape. Le lien vers l'article sera
+ajouté à sa publication.
+
+## En un coup d'œil
+
+| Étape | Commande | Ce qu'on observe |
+| --- | --- | --- |
+| Installer | `mise run up` | kind 1.37, kagent 1.0, Agent Substrate, un pool de workers gVisor |
+| Brancher le modèle | `mise run model` | OpenRouter, trois agents, une première réponse |
+| Densité | `mise run density` | 30 conversations, 30 acteurs endormis, 1 seul pod worker |
+| Suspend/resume | `mise run resume` | un agent restauré depuis son snapshot en ~100 ms |
+| Isolation | `mise run isolation` | gVisor, egress fermé, clé injectée hors de l'agent |
+| Tout d'un coup | `mise run all` | les cinq étapes à la suite (environ 6 minutes) |
+
+Les mesures de référence, prises sur un MacBook Pro (Apple Silicon) avec Docker Desktop, sont dans
+`results/`.
 
 ## Prérequis
 
 - **Docker** (Docker Desktop sur macOS) avec au moins **6 Go de mémoire** et **10 Go de disque libre** dans
-  sa machine virtuelle. Le lab vérifie les deux avant de créer le cluster. Si le disque manque,
+  sa machine virtuelle. Le lab complet occupe environ 1,8 Go de mémoire une fois installé ; la marge sert aux
+  tours d'agents qui tournent en même temps. Le lab vérifie les deux avant de créer le cluster. Si le disque manque,
   `docker builder prune` libère souvent plusieurs gigaoctets de cache de build.
 - **[mise](https://mise.jdx.dev/)**, qui installe tous les autres outils aux versions épinglées dans
   `mise.toml` : kind, kubectl, helm, le CLI kagent, le plugin `kubectl-ate`, jq, grpcurl…
@@ -109,13 +125,14 @@ historique) existe, mais tant qu'il ne travaille pas, il est endormi et n'occupe
 
 ```text
 timestamp,sessions,actors_total,actors_suspended,actors_running,worker_pods,worker_memory_mib
-2026-11-14T22:13:43Z,2,2,2,0,1,17
-2026-11-14T22:13:46Z,10,10,10,0,1,17
-2026-11-14T22:13:51Z,30,30,30,0,1,17
+2026-11-14T22:25:48Z,1,1,1,0,1,14
+2026-11-14T22:25:51Z,10,10,10,0,1,14
+2026-11-14T22:25:56Z,30,30,30,0,1,18
 ```
 
-Trente conversations, trente acteurs endormis, et toujours **un seul pod worker**, qui n'occupe que quelques
-mégaoctets. Avec un pod par agent, on aurait trente pods qui attendent. Le nombre de pods ne dépend que du nombre
+Trente conversations, trente acteurs endormis, et toujours **un seul pod worker**, qui n'occupe qu'une
+quinzaine de mégaoctets. Le premier palier part de la conversation ouverte par `mise run model` ; si vous
+relancez le script, il repart des conversations existantes. Avec un pod par agent, on aurait trente pods qui attendent. Le nombre de pods ne dépend que du nombre
 de répliques du `WorkerPool`, à dimensionner pour les tours qui tournent en même temps, pas pour le nombre
 d'agents ou de conversations.
 
@@ -140,14 +157,15 @@ l'acteur, le restaure depuis son snapshot, l'agent répond, puis l'acteur se ren
 ```text
 ==> session 01a1dc1d-…: ACTOR_STATE_SUSPENDED, no worker pod
     reply: réveillé.
-==> restored in 138 ms, back to ACTOR_STATE_SUSPENDED
+==> restored in 82 ms, back to ACTOR_STATE_SUSPENDED
 …
 ==> snapshot of the last session (only the /data volume, no process memory):
 SNAPSHOT_FIDELITY_VOLUMES  s3://ate-snapshots/kagent/atespaces/kagent/actors/…/snapshots/…
 ```
 
 Le temps mesuré est celui de la restauration, lu dans l'enregistrement « Restore timing breakdown » du
-worker ; il n'inclut pas l'appel au modèle. Sur un MacBook avec Docker Desktop, il varie d'environ 90 à 140 ms.
+worker ; il n'inclut pas l'appel au modèle. Sur un MacBook Pro (Apple Silicon) avec Docker Desktop, nous avons mesuré entre 74 et 138 ms
+selon les essais.
 Les mesures sont écrites dans `results/resume.csv`.
 
 **Ce que contient le snapshot.** Dans kagent 1.0, le snapshot ne garde que le volume `/data` de l'agent
@@ -209,6 +227,15 @@ Supprime le cluster et tout ce qu'il contient.
 - **`kagent sandbox exec` ne rend jamais la main** : l'image `sandbox-guest` ne correspond pas à la version du
   contrôleur. Le lab épingle celle de la version 1.0.0 dans `kagent/kagent-values.yaml` ; la documentation
   « latest » de kagent affiche un digest plus récent, incompatible avec la 1.0.0.
+- **Des sandboxes restent en `RUNTIME_STATE_CREATING`** : le worker est plein (4 Go de limite, 1 Go par
+  sandbox ou par tour en cours). Listez et supprimez les sandboxes oubliées avec `kagent sandbox list` puis
+  `kagent sandbox delete <id>`.
+- **Chaque échange échoue avec une erreur 400 du fournisseur** : le modèle choisi dans `OPENROUTER_MODEL`
+  n'accepte pas les appels d'outils. Revenez à `openrouter/auto` ou choisissez un modèle qui les accepte.
+- **`kagent API not reachable on localhost:18083`** : le port local est déjà pris. Choisissez-en un autre avec
+  la variable `LAB_API_PORT` (par exemple `LAB_API_PORT=28083 mise run density`).
+- **Les scripts échouent sur une syntaxe bash** : ils sont écrits pour le bash 3.2 livré avec macOS ;
+  signalez-le, c'est un bug.
 
 ## Licence
 
