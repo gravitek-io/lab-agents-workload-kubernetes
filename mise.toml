@@ -1,0 +1,27 @@
+# Lab tooling: every tool the lab needs, pinned to an exact version, plus one
+# task per lab step. A reader runs `mise install`, then `mise run <task>`.
+
+[tools]
+kind = "0.33.0"          # >= 0.32.0 is required for Kubernetes 1.37 node images
+kubectl = "1.37.2"
+helm = "3.22.1"          # the kagent CLI drives Helm 3
+jq = "1.8.2"
+grpcurl = "1.9.4"        # reads the kagent SystemService API (Substrate summary)
+envsubst = "1.4.3"       # renders the ModelConfig from .env
+shellcheck = "0.11.0"
+bats = "1.14.0"
+# kagent CLI and the Agent Substrate kubectl plugin, from their GitHub releases.
+"github:kagent-dev/kagent" = { version = "1.0.0", bin = "kagent" }
+"github:kagent-dev/substrate" = { version = "1.0.0", bin = "kubectl-ate" }
+
+[env]
+# Reader secrets and model choice. `.env` is git-ignored; see `.env.example`.
+_.file = { path = ".env", redact = true }
+
+[tasks.check]
+description = "Lint scripts, run unit tests and scan for leaked API keys"
+run = [
+  "shellcheck -x scripts/*.sh scripts/lib/*.sh",
+  "bats tests/",
+  "scripts/check-secrets.sh",
+]

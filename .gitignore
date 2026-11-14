@@ -1,0 +1,7 @@
+# Reader secrets (OpenRouter key, model choice)
+.env
+# Tool binaries downloaded outside mise, kubeconfigs
+bin/
+*.kubeconfig
+# Plan execution scratch space
+.superpowers/
