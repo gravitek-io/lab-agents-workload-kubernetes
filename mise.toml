@@ -1,6 +1,9 @@
 # Lab tooling: every tool the lab needs, pinned to an exact version, plus one
 # task per lab step. A reader runs `mise install`, then `mise run <task>`.
 
+# Values masked in mise's own output: only the API key is secret.
+redactions = ["OPENROUTER_API_KEY"]
+
 [tools]
 kind = "0.33.0"          # >= 0.32.0 is required for Kubernetes 1.37 node images
 kubectl = "1.37.2"
@@ -15,8 +18,8 @@ bats = "1.14.0"
 "github:kagent-dev/substrate" = { version = "1.0.0", bin = "kubectl-ate" }
 
 [env]
-# Reader secrets and model choice. `.env` is git-ignored; see `.env.example`.
-_.file = { path = ".env", redact = true }
+# Reader secret and model choice. `.env` is git-ignored; see `.env.example`.
+_.file = ".env"
 
 [tasks.check]
 description = "Lint scripts, run unit tests and scan for leaked API keys"
@@ -37,3 +40,7 @@ run = "scripts/down.sh"
 [tasks.gvisor-check]
 description = "Prove that sandboxes run under gVisor (no model involved)"
 run = "scripts/gvisor-check.sh"
+
+[tasks.model]
+description = "Connect OpenRouter and create the lab agents"
+run = "scripts/model.sh"

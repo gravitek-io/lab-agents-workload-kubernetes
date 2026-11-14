@@ -62,6 +62,41 @@ gVisor: OK
 Le code de la sandbox ne parle jamais au noyau de l'hôte : ses appels système sont traités par le noyau
 applicatif de gVisor, en espace utilisateur.
 
+## Brancher le modèle
+
+Les agents appellent un modèle via [OpenRouter](https://openrouter.ai), déclaré comme fournisseur compatible
+OpenAI. Créez votre fichier `.env` à la racine du lab, puis renseignez votre clé (`OPENROUTER_API_KEY`) :
+
+```bash
+cp .env.example .env
+```
+
+```bash
+mise run model
+```
+
+Le script range la clé dans un Secret Kubernetes, crée le `ModelConfig` OpenRouter, le harness, le modèle
+d'agent `lab-assistant` et trois agents (`lab-agent-1` à `lab-agent-3`), puis pose une question à l'un d'eux :
+
+```text
+==> smoke test: one question to lab-agent-1
+prêt.
+==> model connected (session 01a1dc1d-…)
+```
+
+Le premier lancement prend une à deux minutes : Substrate construit le snapshot initial de chaque agent.
+
+**La clé ne quitte jamais le Secret.** Elle n'est ni affichée ni passée en argument de commande, et les agents
+ne la voient pas : la passerelle d'egress de Substrate l'ajoute aux requêtes sortantes vers OpenRouter.
+
+**Le routeur automatique.** Par défaut, `OPENROUTER_MODEL=openrouter/auto` laisse OpenRouter choisir un modèle
+pour chaque requête, parmi ceux qui savent appeler des outils. kagent ne transmet ni en-tête ni paramètre propre
+à OpenRouter, et il ne remonte que le nombre de tokens, pas le nom du modèle choisi. Pour voir quel modèle a
+répondu, ouvrez la page **Activity** de votre compte OpenRouter. Pour encadrer les choix du routeur, réglez le
+palier de coût (`low` suffit pour ce lab) et la liste des modèles autorisés dans la page **Routing**, section
+*Auto Router*. Pour fixer un modèle, remplacez la valeur de `OPENROUTER_MODEL` par son identifiant OpenRouter :
+il doit accepter les appels d'outils.
+
 ## Arrêter
 
 ```bash
