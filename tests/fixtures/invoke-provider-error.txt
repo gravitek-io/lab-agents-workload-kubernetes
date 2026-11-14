@@ -1,0 +1,2 @@
+llm error response (code STREAM_ERROR): "OpenAI API error: 400 Bad Request"
+Error: session task 01a1dc30-50c1-7ee4-84db-23f44063f3cd ended in TASK_STATE_FAILED

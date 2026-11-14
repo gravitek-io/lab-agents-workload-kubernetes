@@ -240,6 +240,6 @@ Pas de tests unitaires pour des scripts shell de démo ; à la place, chaque scr
   remonte aux sources primaires (annonces Google / Solo.io, talk KubeCon) avant d'en citer un seul, et chaque
   chiffre est attribué à son auteur. Le « ~70 % du trafic d'inférence vient d'agents » suit la même règle.
 - **Longueur de l'article** : comparable à l'article golden path (environ 2 000 à 2 500 mots hors code).
-- **Publication du lab** : repo public dans l'organisation GitHub `gravitek-io` (comme `gravitek-website`),
-  licence Apache 2.0 (comme CalMirror). Créer le repo distant et pousser demandent l'accord explicite de Thomas :
+- **Publication du lab** : repo public `gravitek-io/lab-agents-workload-kubernetes` (créé par Thomas le
+  2026-11-14), licence Apache 2.0 (comme CalMirror). Créer le repo distant et pousser demandent l'accord explicite de Thomas :
   c'est un point d'arrêt du plan, avant la sortie de `draft: true`.

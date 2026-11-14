@@ -1,0 +1,37 @@
+# Three agents built from the same template. Each conversation (session) with
+# one of them becomes its own Substrate actor.
+apiVersion: api.kagent.dev/v1alpha3
+kind: Agent
+metadata:
+  name: lab-agent-1
+  namespace: kagent
+spec:
+  template:
+    ref:
+      name: lab-assistant
+  harnessRef:
+    name: lab-harness
+---
+apiVersion: api.kagent.dev/v1alpha3
+kind: Agent
+metadata:
+  name: lab-agent-2
+  namespace: kagent
+spec:
+  template:
+    ref:
+      name: lab-assistant
+  harnessRef:
+    name: lab-harness
+---
+apiVersion: api.kagent.dev/v1alpha3
+kind: Agent
+metadata:
+  name: lab-agent-3
+  namespace: kagent
+spec:
+  template:
+    ref:
+      name: lab-assistant
+  harnessRef:
+    name: lab-harness

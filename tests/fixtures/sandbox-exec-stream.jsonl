@@ -1,0 +1,4 @@
+{"event":"started","sandbox_id":"01a1dc0f-7ef6-72da-b802-e39c64be7f05","process_id":"proc-7d18ace729dca4d4c8e6d210","stdout_offset":0,"stderr_offset":0}
+{"event":"output","sandbox_id":"01a1dc0f-7ef6-72da-b802-e39c64be7f05","process_id":"proc-7d18ace729dca4d4c8e6d210","source":"stdout","data":"NC4xOS4wLWd2aXNvcgo=","stdout_offset":14,"stderr_offset":0}
+{"event":"output","sandbox_id":"01a1dc0f-7ef6-72da-b802-e39c64be7f05","process_id":"proc-7d18ace729dca4d4c8e6d210","source":"stderr","data":"ZXJyCg==","stdout_offset":14,"stderr_offset":4}
+{"event":"finished","sandbox_id":"01a1dc0f-7ef6-72da-b802-e39c64be7f05","process_id":"proc-7d18ace729dca4d4c8e6d210","state":"PROCESS_STATE_EXITED","exit_code":0,"stdout_offset":14,"stderr_offset":4}

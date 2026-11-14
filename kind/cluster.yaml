@@ -1,0 +1,8 @@
+# Single-node kind cluster for the lab. Kubernetes 1.37 is the floor for
+# Agent Substrate (PodCertificateRequest and ClusterTrustBundle are GA there).
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: agents-lab
+nodes:
+  - role: control-plane
+    image: kindest/node:v1.37.0

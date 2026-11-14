@@ -1,0 +1,14 @@
+# Shared definition of the lab agents: model and system prompt.
+apiVersion: api.kagent.dev/v1alpha3
+kind: AgentTemplate
+metadata:
+  name: lab-assistant
+  namespace: kagent
+spec:
+  description: Assistant du lab « agents IA sur Kubernetes »
+  modelConfig:
+    name: openrouter
+  systemPrompt: >-
+    Tu es un assistant concis. Réponds en français, en une ou deux phrases.
+    Quand on te demande d'exécuter une commande, utilise ton outil bash et
+    renvoie sa sortie telle quelle.

@@ -1,0 +1,16 @@
+# OpenRouter, declared as an OpenAI-compatible provider. ${OPENROUTER_MODEL} is
+# rendered by scripts/model.sh from .env (default: openrouter/auto, the
+# OpenRouter auto router). The API key stays in the `openrouter` Secret: the
+# egress gateway injects it, the agents never see it.
+apiVersion: api.kagent.dev/v1alpha3
+kind: ModelConfig
+metadata:
+  name: openrouter
+  namespace: kagent
+spec:
+  provider: OpenAI
+  model: ${OPENROUTER_MODEL}
+  apiKeySecret: openrouter
+  apiKeySecretKey: OPENROUTER_API_KEY
+  openAI:
+    baseUrl: https://openrouter.ai/api/v1

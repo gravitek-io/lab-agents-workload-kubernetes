@@ -1,0 +1,11 @@
+{
+  "actorCount": "2",
+  "workerCount": "1",
+  "actorStatusCounts": [
+    {
+      "count": "2",
+      "state": "ACTOR_STATE_SUSPENDED"
+    }
+  ],
+  "computedAt": "2026-11-14T22:12:29.367085796Z"
+}

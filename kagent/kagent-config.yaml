@@ -1,0 +1,5 @@
+# kagent CLI configuration: `kagent install` takes no Helm flags, chart values
+# reach it through this file. Relative paths resolve against this directory.
+install:
+  kagent:
+    valuesFiles: [kagent-values.yaml]

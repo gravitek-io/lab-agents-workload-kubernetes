@@ -1,0 +1,74 @@
+# Lab tooling: every tool the lab needs, pinned to an exact version, plus one
+# task per lab step. A reader runs `mise install`, then `mise run <task>`.
+
+# Values masked in mise's own output: only the API key is secret.
+redactions = ["OPENROUTER_API_KEY"]
+
+[tools]
+kind = "0.33.0"          # >= 0.32.0 is required for Kubernetes 1.37 node images
+kubectl = "1.37.2"
+helm = "3.22.1"          # the kagent CLI drives Helm 3
+jq = "1.8.2"
+grpcurl = "1.9.4"        # reads the kagent SystemService API (Substrate summary)
+envsubst = "1.4.3"       # renders the ModelConfig from .env
+shellcheck = "0.11.0"
+bats = "1.14.0"
+# kagent CLI and the Agent Substrate kubectl plugin, from their GitHub releases.
+"github:kagent-dev/kagent" = { version = "1.0.0", bin = "kagent" }
+"github:kagent-dev/substrate" = { version = "1.0.0", bin = "kubectl-ate" }
+
+[env]
+# Reader secret and model choice. `.env` is git-ignored; see `.env.example`.
+_.file = ".env"
+
+[tasks.check]
+description = "Lint scripts, run unit tests and scan for leaked API keys"
+run = [
+  "shellcheck -x scripts/*.sh scripts/lib/*.sh",
+  "bats tests/",
+  "scripts/check-secrets.sh",
+]
+
+[tasks.up]
+description = "Create the kind cluster and install kagent 1.0 with Agent Substrate"
+run = "scripts/up.sh"
+
+[tasks.down]
+description = "Delete the lab cluster"
+run = "scripts/down.sh"
+
+[tasks.gvisor-check]
+description = "Prove that sandboxes run under gVisor (no model involved)"
+run = "scripts/gvisor-check.sh"
+
+[tasks.model]
+description = "Connect OpenRouter and create the lab agents"
+run = "scripts/model.sh"
+
+[tasks.measure]
+description = "Append one density measurement to results/density.csv"
+run = "scripts/measure.sh"
+
+[tasks.density]
+description = "Open 1, 10 then 30 sessions and measure actors versus worker pods"
+run = "scripts/density.sh"
+
+[tasks.resume]
+description = "Wake sleeping sessions and record their restore times"
+run = "scripts/resume.sh"
+
+[tasks.isolation]
+description = "Show gVisor isolation, closed egress and credential injection"
+run = "scripts/isolation.sh"
+
+[tasks.all]
+description = "Run the whole lab: up, model, density, resume, isolation"
+run = [
+  # Fail fast on a missing .env, before the few minutes `up` takes.
+  "bash -c 'source scripts/lib/common.sh && require_env OPENROUTER_API_KEY OPENROUTER_MODEL'",
+  "scripts/up.sh",
+  "scripts/model.sh",
+  "scripts/density.sh",
+  "scripts/resume.sh",
+  "scripts/isolation.sh",
+]
